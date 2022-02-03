@@ -26,7 +26,7 @@ SECRET_KEY = config('SECRET_KEY', 'dummy_secret_key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False #config('DEBUG', 'True', cast=bool)
 
-ALLOWED_HOSTS = ["127.0.0.1", "sampledomain.com"]
+ALLOWED_HOSTS = ["*",]
 
 
 # Application definition
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'django.contrib.admindocs',
+    'whitenoise.runserver_nostatic',
     'crispy_forms',
     'students',
     'embed_video',
@@ -76,6 +77,9 @@ MIDDLEWARE = [
 # if DEBUG == False:
     # MIDDLEWARE += ('courses.middleware.SubdomainCourseMiddleware')
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+import dj_database_url
+
 
 ROOT_URLCONF = 'myelearning.urls'
 
@@ -108,7 +112,8 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
+db_from_env = dj_database_url.config(conn_max_age=600)
+DATABASES['default'].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
