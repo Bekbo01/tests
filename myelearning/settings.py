@@ -26,7 +26,7 @@ SECRET_KEY = config('SECRET_KEY', 'dummy_secret_key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', 'True', cast=bool)
 
-ALLOWED_HOSTS = ['oqulyq.herokuapp.com', 'localhost']
+ALLOWED_HOSTS = ['oqulyq.herokuapp.com', 'bekbo.herokuapp.com', 'localhost']
 
 
 # Application definition
