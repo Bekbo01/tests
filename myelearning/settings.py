@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = config('SECRET_KEY', 'dummy_secret_key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', 'True', cast=bool)
+DEBUG = False
 
 ALLOWED_HOSTS = ['oqulyq.herokuapp.com', 'bekbo.herokuapp.com', 'localhost']
 
