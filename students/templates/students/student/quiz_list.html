@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}
+{% trans 'Тест' %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2>{% trans 'Тест' %}</h2>
+    <div class="quizzes">
+        {% include 'students/student/_title.html' with active='new' %}
+        <div class="quiz">
+            <table class="table table-bordered mb-0">
+                <thead>
+                    <tr>
+                        <th>{% trans 'Тест' %}</th>
+                        <th>{% trans 'Tag' %}</th>
+                        <th>{% trans 'Сұрақ саны' %}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quiz in quizzes %}
+                        <tr>
+                            <td>{{ quiz.name }}</td>
+                            <td>{{ quiz.tag.get_html_badge }}</td>
+                            <td>{{ quiz.questions_count }}</td>
+                            <td><a href="{% url 'take_quiz' quiz.pk %}" class="bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2  border rounded-full">{% trans 'Тесті бастау' %}</a></td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">{% trans 'Әзірге тестер жоқ!' %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+ {% endblock %}

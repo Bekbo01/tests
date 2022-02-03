@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}
+{% trans 'Сұрақты жоюды растау?' %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="quiz">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'teacher_quiz_change_list' %}">{% trans 'Менің тестерім' %}</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'teacher_update_quiz' quiz.pk %}">{{ quiz.name }}</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'teacher_change_question' quiz.pk question.pk %}">{{ question.text }}</a></li>
+              <li class="breadcrumb-item active" aria-current="page">{% trans 'Сұрақты жоюды растау?' %}</li>
+            </ol>
+        </nav>
+
+        <h2>{% trans 'Сұрақты жоюды растау?' %}</h2>
+        <p>{% trans 'Сенімдісіз бе?' %} {{ question.text }}</p>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <button class="bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2  border rounded-full" type="submit"><i class="icon icon-bin-2"></i> {% trans 'Жою' %}</button>
+            <a href="{% url 'teacher_change_question' quiz.pk question.pk %}" class="btn btn-secondary" role="button">{% trans 'Артқа' %}</a>
+        </form>
+    </div>
+</div>
+ {% endblock %}

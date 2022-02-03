@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% block title %}
+{% trans 'Сұрақ қосу' %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="quiz">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'teacher_quiz_change_list' %}">{% trans 'Менің тестерім' %}</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'teacher_update_quiz' quiz.pk %}">{{ quiz.name }}</a></li>
+              <li class="breadcrumb-item active" aria-current="page">{{ question.text }}</li>
+            </ol>
+        </nav>
+
+        <h2>{{ question.text }}</h2>
+
+        <form method="post" novalidate>    
+            {% csrf_token %}
+            {{ formset.management_form }}
+            {{ form|crispy }}
+            <div class="card mb-3{% if formset.errors %} border-danger{% endif %}">
+              <div class="card-header">
+                <div class="row">
+                  <div class="col-8">
+                    <strong>{% trans 'Жауабы' %}</strong>
+                  </div>
+                  <div class="col-2">
+                    <strong>{% trans 'Дұрыс ?' %}</strong>
+                  </div>
+                  <div class="col-2">
+                    <strong>{% trans 'Жою ?' %}</strong>
+                  </div>
+                </div>
+              </div>
+              {% for error in formset.non_form_errors %}
+                <div class="card-body bg-danger border-danger text-white py-2">{{ error }}</div>
+              {% endfor %}
+              <div class="list-group list-group-flush list-group-formset">
+                {% for form in formset %}
+                  <div class="list-group-item">
+                    <div class="row">
+                      <div class="col-8">
+                        {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                        {{ form.text|as_crispy_field }}
+                        {% if form.instance.pk and form.text.value != form.instance.text %}<p class="mb-0 mt-1"><small class="text-muted font-italic"><strong>Old answer:</strong> {{ form.instance.text }}</small></p>{% endif %}
+                      </div>
+                      <div class="col-2">
+                        {{ form.is_correct }}
+                      </div>
+                      <div class="col-2">
+                        {% if form.instance.pk %}
+                          {{ form.DELETE }}
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+            <p>{% trans 'Сіздің сұрағыңызда кемінде 2 жауап және ең көбі 10 жауап болуы керек. Кем дегенде бір дұрыс жауапты таңдаңыз.' %}</p>
+            <button class="bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2  border rounded-full" type="submit">{% trans 'Сақтау' %}</button>
+            <a href="{% url 'teacher_update_quiz' quiz.pk %}" class="btn btn-secondary" role="button">{% trans 'Артқа' %}</a>
+            <a href="{% url 'teacher_delete_question' quiz.pk question.pk %}" class="btn btn-delete" role="button"><i class="icon icon-bin-2"></i>{% trans 'Жою' %}</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
