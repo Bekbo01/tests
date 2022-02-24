@@ -1,0 +1,430 @@
+<html lang="en" class="js-focus-visible" data-js-focus-visible=""><head> 
+	<meta charset="UTF-8">
+	{% load staticfiles %}
+	<title>Кіріспе</title>
+	
+	<script src="{% static 'scripts/jquery-3.2.1.min.js' %}"></script>
+	<script src="{% static 'scripts/jquery-ui.min.js' %}"></script>
+	<script src="{% static 'scripts/phaser.min.js' %}"></script>
+	<script src="{% static 'scripts/ui.js' %}"></script>
+	<script src="{% static 'scripts/bindings.js' %}"></script>
+	<script src="{% static 'scripts/devicescripts.js' %}"></script>
+
+	<link href="{% static 'styles/jquery-ui.min.css' %}" rel="stylesheet">
+	<style type="text/css">
+		* { font-family:Arial, Helvetica, sans-serif; }
+		body { margin: 0; overflow:hidden; }
+	</style>
+<style type="text/css">
+@font-face {
+  font-weight: 400;
+  font-style:  normal;
+  font-family: 'Circular-Loom';
+
+  src: url('https://cdn.loom.com/assets/fonts/circular/CircularXXWeb-Book-cd7d2bcec649b1243839a15d5eb8f0a3.woff2') format('woff2');
+}
+
+@font-face {
+  font-weight: 500;
+  font-style:  normal;
+  font-family: 'Circular-Loom';
+
+  src: url('https://cdn.loom.com/assets/fonts/circular/CircularXXWeb-Medium-d74eac43c78bd5852478998ce63dceb3.woff2') format('woff2');
+}
+
+@font-face {
+  font-weight: 700;
+  font-style:  normal;
+  font-family: 'Circular-Loom';
+
+  src: url('https://cdn.loom.com/assets/fonts/circular/CircularXXWeb-Bold-83b8ceaf77f49c7cffa44107561909e4.woff2') format('woff2');
+}
+
+@font-face {
+  font-weight: 900;
+  font-style:  normal;
+  font-family: 'Circular-Loom';
+
+  src: url('https://cdn.loom.com/assets/fonts/circular/CircularXXWeb-Black-bf067ecb8aa777ceb6df7d72226febca.woff2') format('woff2');
+}</style></head>
+<body>
+
+<script type="text/javascript">
+var DEFAULT_GAMESPEED = 3;
+
+var levelid = 1;
+var level = {
+	devices:[
+		{
+			id:"Marat",
+			ports:1,
+			x:0.33,
+			y:0.33,
+		},
+		{
+			id:"Samat",
+			image:"iphone-1",
+			ports:1,
+			x:0.67,
+			y:0.33
+		},
+		{
+			id:"Qairat",
+			image:"macbook",
+			ports:1,
+			x:0.33,
+			y:0.67,
+			player:"true"
+		},
+		{
+			id:"Alma",
+			image:"monitor",
+			ports:1,
+			x:0.67,
+			y:0.67
+		}
+	],
+	links:[
+		{
+			src:"Marat", srcport:0,
+			dst:"Samat", dstport:0
+		},
+		{
+			src:"Qairat", srcport:0,
+			dst:"Alma", srcport:0
+		}
+	],
+	timeline:[
+		{
+			type:"packet",
+			at:50,
+			from:"Samat",
+			payload:{
+				network:{srcip:"Samat",dstip:"Marat"}
+			}
+		},
+		{
+			type:"packet",
+			at:1050,
+			from:"Marat",
+			payload:{
+				network:{srcip:"Marat",dstip:"Samat"}
+			}
+		},
+		{
+			type:"packet",
+			at:2050,
+			from:"Samat",
+			payload:{
+				network:{srcip:"Samat",dstip:"Marat"}
+			}
+		}
+	],
+	triggers:[
+		{
+			type:"packet",
+			device:"Alma"
+		}
+	],
+	nextLevel:2
+};
+var devices = {};
+var playerPackets = [];
+
+var packetFields = [
+	{layer:"network", fields:[
+		"srcip", "dstip"
+	]},
+	{layer:"transport", fields:[
+		"proto", "ttl"
+	]},
+];
+
+var vpWidth = window.innerWidth || document.documentElement.clientWidth || document.getElementsByTagName('body')[0].clientWidth;
+var vpHeight = window.innerHeight|| document.documentElement.clientHeight|| document.getElementsByTagName('body')[0].clientHeight;
+
+var game = new Phaser.Game(vpWidth, vpHeight, Phaser.AUTO, 'game', { preload: preload, create: create, update: update });
+var grpPackets;
+var grpDevices;
+var grpLaunchers;
+var pause, pause_, play, play_, fast, fast_;
+
+function preload() {
+	    handleRemoteImagesOnJSFiddle();
+	game.load.image('imac', 'imac.png');
+	game.load.image('iphone-1', 'iphone-1.png');
+	game.load.image('macbook', 'macbook.png');
+	game.load.image('monitor', 'monitor.png');
+	game.load.image('packet', 'circle.png');
+	game.load.image('server', 'server.png');
+	game.load.image('router', 'router.png');
+
+	game.load.image('reset', 'reset.png');
+	game.load.image('pause', 'pause.png');
+	game.load.image('pause_', 'pause_grey.png');
+	game.load.image('play', 'play.png');
+	game.load.image('play_', 'play_grey.png');
+	game.load.image('fast', 'fast.png');
+	game.load.image('fast_', 'fast_grey.png');
+	game.load.image('edit', 'tabs.png');
+	game.load.image('launch', 'launch.png');
+	game.load.image('add', 'add.png');
+
+	for (var i = 0; i <= 6; i++) game.load.image('meter-'+i, 'meter-'+i+'.png');
+	//game.load.crossOrigin = 'anonymous';
+}
+function handleRemoteImagesOnJSFiddle() {
+	game.load.baseURL = 'https://oqulyq.herokuapp.com/static/images/';
+	game.load.crossOrigin = 'anonymous';
+}
+
+function create() {
+	game.stage.backgroundColor = 0xDDDDDD;
+	grpDevices = game.add.group();
+	grpPackets = game.add.group();
+	grpLaunchers = game.add.group();
+	document.getElementById('pane').style.left = (vpWidth * 0.7) + 'px';
+	document.getElementById('pane').style.width = (vpWidth * 0.3 - 40) + 'px';
+	document.getElementById('pane').style.height = (vpHeight - 40) + 'px';
+
+	pause = game.add.sprite(80, 20, 'pause');
+	play = game.add.sprite(140, 20, 'play');
+	fast = game.add.sprite(200, 20, 'fast');
+
+	game.add.button(20, 20, 'reset', btnReset);
+	pause_ = game.add.button(80, 20, 'pause_', btnPause);
+	play_ = game.add.button(140, 20, 'play_', btnPlay);
+	fast_ = game.add.button(200, 20, 'fast_', btnFast);
+	createLaunchers();
+
+	fast_.visible = false;
+
+	for (var i = 0; i < level.devices.length; i++) {
+		var devSprite = grpDevices.create(0.7 * game.world.width * level.devices[i].x, game.world.height * level.devices[i].y, level.devices[i].image || 'imac');
+		level.devices[i].sprite = devSprite;
+		if (level.devices[i].hasOwnProperty("capacity")) {
+			level.devices[i].capsprite = grpDevices.create(0.7 * game.world.width * level.devices[i].x + 128,   game.world.height * level.devices[i].y, 'meter-0');
+		}
+		devices[level.devices[i].id] = level.devices[i];
+		devices[level.devices[i].id].ports = [];
+		devices[level.devices[i].id].locked = false;
+		devSprite.inputEnabled = true;
+		devSprite.events.onInputDown.add(onDeviceClick, level.devices[i]);
+	}
+
+	var graphics = game.add.graphics(0,0);
+	graphics.lineStyle(1, 0, 0);
+	graphics.lineTo(1,1);
+	graphics.lineStyle(1, 0x000000, 1);
+
+	for (var i = 0; i < level.links.length; i++) {
+		var src = devices[level.links[i].src];
+		var dst = devices[level.links[i].dst];
+		src.ports[ level.links[i].srcport ] = dst.id;
+		dst.ports[ level.links[i].dstport ] = src.id;
+		graphics.moveTo(src.sprite.centerX, src.sprite.centerY);
+		graphics.lineTo(dst.sprite.centerX, dst.sprite.centerY);
+	}
+
+	var meshSprite = game.add.sprite(0, 0, graphics.generateTexture());
+	meshSprite.sendToBack();
+	graphics.destroy();
+
+	if (!level.hasOwnProperty("triggers")) level.triggers = [];
+
+	$("#loading").hide();
+
+	game.input.keyboard.onPressCallback = function(e){ if (e == " ") {
+		if (game.paused) {
+			if (game.time.slowMotion == 1) btnFast();
+			else btnPlay();
+		} else btnPause();
+	}};
+	//loadPlayerPackets();
+	btnReset();
+}
+
+function initEvents() {
+	for (var i = 0; i < level.timeline.length; i++) {
+		game.time.events.add(level.timeline[i].at * 3, playPacket, level.timeline[i]);
+	}
+}
+
+function playPacket() {
+	doPacketAnimation(this.from, getDefaultRecipient(this.from), this.payload);
+}
+
+function getDefaultRecipient(from) {
+	for (var i = 0; i < level.links.length; i++) {
+		if (level.links[i].src == from) return level.links[i].dst;
+		else if (level.links[i].dst == from) return level.links[i].src;
+	}
+	return null;
+}
+
+function getPortRecipient(from, portNum) {
+	for (var i = 0; i < level.links.length; i++) {
+		if (level.links[i].src == from && level.links[i].srcport == portNum) return level.links[i].dst;
+		if (level.links[i].dst == from && level.links[i].dstport == portNum) return level.links[i].src;
+	}
+	return null;
+
+}
+
+// WARNING: this should only be called by the animator
+// devicescripts should not be able to access it
+function getRemotePort(src, dst) {
+	for (var i = 0; i < level.links.length; i++) {
+		if (level.links[i].src == src && level.links[i].dst == dst) return level.links[i].dstport;
+		if (level.links[i].src == dst && level.links[i].dst == src) return level.links[i].srcport;
+	}
+}
+
+function update() {
+	//todo: separate out the meter-X updates from satisfiesTrigger
+	for (var i = 0; i < level.triggers.length; i++) {
+		if (level.triggers[i].type == "flood") {
+			satisfiesTrigger({dst: level.triggers[i].device}, {type:"flood",device:level.triggers[i].device,noup:true});
+		}
+	}
+}
+
+var levelOver = false;
+function donePacket() {
+	this.kill();
+	var youWin = true;
+
+	for (var i = 0; i < level.triggers.length; i++) {
+		if (satisfiesTrigger(this, level.triggers[i])) {
+			if (level.triggers[i].hasOwnProperty("times")) {
+				if (--level.triggers[i].times <= 0) level.triggers[i].completed = true;
+			} else level.triggers[i].completed = true;
+		}
+
+		if (!level.triggers[i].hasOwnProperty("completed")) youWin = false;
+	}
+
+	if (devices[this.dst].hasOwnProperty("script")) {
+		devices[this.dst].script.onPacketReceived(devices[this.dst], this.payload, this.portNum);
+	}
+}
+
+function satisfiesTrigger(pkt, t) {
+	if (pkt.dst != t.device) return false;
+	
+	if (t.type == "packet") {
+		if (!t.hasOwnProperty("payload") && !t.hasOwnProperty("times")) return true;
+		if (!pkt.hasOwnProperty("payload")) return false;
+	
+		var layers = t.hasOwnProperty("payload") ? Object.keys(t.payload) : [];
+		for (var i = 0; i < layers.length; i++) {
+			if (!pkt.payload.hasOwnProperty(layers[i])) return false;
+	
+			var fields = Object.keys(t.payload[ layers[i] ]);
+			for (var j = 0; j < fields.length; j++) {
+				if (!pkt.payload[ layers[i] ].hasOwnProperty(fields[j])) return false;
+				if (pkt.payload[ layers[i] ][ fields[j] ].trim().toLowerCase() != t.payload[ layers[i] ][ fields[j] ].trim().toLowerCase()) return false;
+			}
+		}
+
+		return true;
+	} else if (t.type == "flood") {
+		if (!devices[t.device].hasOwnProperty("floodCounter")) {
+			devices[t.device].floodCounter = 0;
+			devices[t.device].floodLast = 0;
+		}
+
+		var delta = game.time.events.ms - devices[t.device].floodLast;
+		if (t.noup && devices[t.device].floodCounter > 0) {
+			if (delta > 200) {
+				devices[t.device].floodCounter--;
+				devices[t.device].floodLast = game.time.events.ms;
+			}
+		} else if (delta < 120 / devices[t.device].capacity) {
+			devices[t.device].floodCounter++;
+			if (devices[t.device].floodCounter > 30) devices[t.device].floodCounter = 30;
+		} else {
+			devices[t.device].floodCounter -= Math.floor(delta / (120 / devices[t.device].capacity));
+			if (devices[t.device].floodCounter < 0) devices[t.device].floodCounter = 0;
+		}
+
+		if (!t.noup) devices[t.device].floodLast = game.time.events.ms;
+		devices[t.device].capsprite.loadTexture('meter-'+Math.floor( devices[t.device].floodCounter / 5 ));
+
+		return devices[t.device].floodCounter == 30;
+	} else {
+		console.log("unknown trigger type: "+t.type);
+		return false;
+	}
+}
+
+</script>
+
+<div id="game" style="float:left">
+</div>
+
+<div id="pane" style="position: absolute; padding: 20px; overflow: auto; left: 1344px; width: 536px; height: 1017px;">
+	<h1>кіріспе</h1>
+
+	<div id="leveldescrip" style="overflow:auto;">
+	
+		<p>Кіріспе бөлім!
+
+			<p>Бұл бөлімде модульдің интерфейсімен танысамыз
+			
+			<p><strong>Компьютерге</strong> басу арқылы коипьютер жайлы ақпаратты көре аласыз. Модульде <span class="button">паузаға</span> арқылы симуляцияны тоқтатуға болады.
+			<strong>Пакетке (хабарламаға)</strong> басу ақылы хабарлама қайдан және қайда жөнелтілгендігі жайлы ақпарат аласыз.
+			
+			<p>Паузаға және қайта бастау (restart) арқылы симуляцияны басқаруға болады.
+			
+			<p>Төмендегі қадамдарды орындаңыз.
+			
+			<h3>Қадамдар:</h3>
+			
+			<ul>
+				<li>Модульді қайта жүктеу үшін рестарт батырмасын басыныз
+				<li>Симуляторды тоқтатыңыз
+				<li>Компьютерге басу арқылы ол туралы ақпараттарды оқыныз
+				<li>Пакетке (хабарламаға) басып өасиеттерімен танысыныз 
+				<li>+ батырмасын басу арқылы жаңа пакет құрыңыз(әзірге ұяшықтарды бос қалдырып кетіңіз!)
+				<li>симуляцияны іске қосыңыз!
+			</ul>
+
+	</div>
+
+	<input type="button" id="subpane_close" style="display:none" value="Тапсырманы оқу" onclick="onSubpaneClose()" class="ui-button ui-corner-all ui-widget" role="button">
+	<div id="subpane" style="display:none"></div>
+</div>
+
+<div id="editor" style="display:none;">
+	Жіберуші: 
+	<select id="pktFrom">
+		<option>Marat</option>
+		<option>Samat</option>
+		<option>Qairat</option>
+	</select><br>
+	<fieldset>
+		<legend>Желілік қабат</legend>
+		srcip: <input type="text" id="srcip"><br>
+		dstip: <input type="text" id="dstip">
+	</fieldset>
+	<fieldset>
+		<legend>Транспорттық қабат</legend>
+		протокол: <input type="text" id="other">
+	</fieldset>
+</div>
+
+<div id="winner" style="display:none;">
+	<p>Құттықтаймын сіздің қолыныздан келді!</p>
+</div>
+
+
+
+<div id="loading" style="position: absolute; inset: 0px; background-color: rgb(221, 221, 221); color: rgb(34, 34, 34); text-align: center; display: none;">
+	<h2>Кіріспе</h2>
+	<p>Күте тұрыныз...</p><p>
+</p></div>
+
+
+
+</body><loom-container id="lo-engage-ext-container"><loom-shadow classname="resolved"></loom-shadow></loom-container><loom-container id="lo-companion-container"><loom-shadow classname="resolved"></loom-shadow></loom-container></html>
