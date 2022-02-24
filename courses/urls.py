@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^star/$', views.star, name='star'),
     url(r'^peertopeer/$', views.peertopeer, name='peertopeer'),
     url(r'^ipv4/$', views.ipv4, name='ipv4'),
+    url(r'^network/$', views.network, name='network'),
     url(r'^dashboard/$', views.ManageCourseListView.as_view(), name='manage_course_list'),
     url(r'^create/$', never_cache(login_required(terms_required(views.CourseCreateView.as_view()))), name='course_create'),
     url(r'^(?P<pk>\d+)/edit/$', views.CourseUpdateView.as_view(), name='course_edit'),
