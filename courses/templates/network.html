@@ -1,7 +1,7 @@
 <html lang="en" class="js-focus-visible" data-js-focus-visible=""><head> 
 	<meta charset="UTF-8">
 	{% load staticfiles %}
-	<title>Network</title>
+	<title>Пинг жіберу</title>
 	
 	<script src="{% static 'scripts/jquery-3.2.1.min.js' %}"></script>
 	<script src="{% static 'scripts/jquery-ui.min.js' %}"></script>
@@ -56,7 +56,7 @@ var levelid = 3;
 var level = {
 	devices:[
 		{
-			id:"Alice",
+			id:"Marat",
 			ports:1,
 			x:0.25,
 			y:0.5,
@@ -74,7 +74,7 @@ var level = {
 	],
 	links:[
 		{
-			src:"Alice", srcport:0,
+			src:"Marat", srcport:0,
 			dst:"Google", dstport:0
 		}
 	],
@@ -82,9 +82,9 @@ var level = {
 		{
 			type:"packet",
 			at:500,
-			from:"Alice",
+			from:"Marat",
 			payload:{
-				network:{srcip:"Alice", dstip:"Google"},
+				network:{srcip:"Marat", dstip:"Google"},
 				transport:{proto:"ICMP"}
 			}
 		}
@@ -92,9 +92,9 @@ var level = {
 	triggers:[
                 {
 			type:"packet",
-			device:"Alice",
+			device:"Marat",
 			payload:{
-				network:{srcip:"Google", dstip:"Alice"},
+				network:{srcip:"Google", dstip:"Marat"},
 				transport:{proto:"ICMP"}
 			},
 			times:5
@@ -342,62 +342,54 @@ function satisfiesTrigger(pkt, t) {
 </div>
 
 <div id="pane" style="position: absolute; padding: 20px; overflow: auto; left: 1344px; width: 536px; height: 1017px;">
-	<h1>Ping</h1>
-
-	<input type="button" value="Level list" onclick="location.href='./'" class="ui-button ui-corner-all ui-widget" role="button">
+	<h1>Пинг</h1>
 
 	<div id="leveldescrip" style="overflow:auto;">
 	
-<p>So far we have seen very basic packets. These packets have shown only the source (who sent the packet) and the
-destination (who received the packet). In this level, we will see a more complex packet that will give the recipient
-information about how to respond.
+<p>Осы уақытқа дейін біз өте қарапайым пакеттерді көрдік. Бұл пакеттер тек дереккөзді (пакетті жіберген) және тағайындалған орынды (пакетті алған) көрсетті. 
+	Бұл деңгейде біз алушыға қалай жауап беру керектігі туралы ақпаратты беретін күрделі пакетті көреміз.
 
-</p><p>Pause the simulation to view the packet sent from Alice's computer to Google. There is a new header under the
-<strong>transport layer</strong>. The header, <strong>proto</strong> defines the <strong>protocol</strong> that will
-be run on this layer. The protocol listed is <strong>ICMP</strong>, which is used to <strong>ping</strong> computers. When a
-computer receives a packet with an ICMP echo request (ping) they respond by sending back a packet with an ICMP echo
-(pong). Resume the simulation and notice the response packet sent from Google to Alice's computer.
+</p><p>Марат компьютерінен Google-ға жіберілген пакетті көру үшін модельді тоқтатыңыз.
+<strong>Тасымалдау қабаты</strong> астында жаңа тақырып бар. 
+<strong>Протокол</strong> тақырыбы осы қабатта орындалатын <strong>протоколды</strong> анықтайды.
+Тізімде келтірілген протокол <strong>ICMP</strong> болып табылады, ол компьютерлерді <strong>пингтеу</strong> үшін пайдаланылады. 
+Компьютер ICMP жаңғырығы (пинг) бар пакетті алған кезде, олар ICMP эхо (понг) бар пакетті кері жіберу арқылы жауап береді.
+Модельдеу жұмысын жалғастырыңыз және Google-дан Мараттың компьютеріне жіберілген жауап пакетін жіберіңіз.
 
 
-</p><h3>Level Objectives</h3>
-
-<ul>
-    <li>To complete this level, you must send 4 more ICMP echo requests from Alice to Google. Proceed as before, by clicking the + to add new packets. Remember to fill in the new <strong>transport layer</strong> header proto header field.</li>
-</ul>
 	</div>
 
-	<input type="button" id="subpane_close" style="display:none" value="Level info" onclick="onSubpaneClose()" class="ui-button ui-corner-all ui-widget" role="button">
+	<input type="button" id="subpane_close" style="display:none" value="Тапсырманы оқу" onclick="onSubpaneClose()" class="ui-button ui-corner-all ui-widget" role="button">
 	<div id="subpane" style="display:none"></div>
 </div>
 
 <div id="editor" style="display:none;">
-	Sent from: 
+	Жіберуші: 
 	<select id="pktFrom">
-		<option>Alice</option>
-		<option>Bob</option>
-		<option>Carol</option>
+		<option>Marat</option>
+		<option>Samat</option>
+		<option>Qairat</option>
 	</select><br>
 	<fieldset>
-		<legend>Network Layer</legend>
+		<legend>Желілік қабат</legend>
 		srcip: <input type="text" id="srcip"><br>
 		dstip: <input type="text" id="dstip">
 	</fieldset>
 	<fieldset>
-		<legend>Transport Layer</legend>
-		payload: <input type="text" id="payload"><br>
-		proto: <input type="text" id="other">
+		<legend>Транспорттық қабат</legend>
+		протокол: <input type="text" id="other">
 	</fieldset>
 </div>
 
 <div id="winner" style="display:none;">
-	<p>You won the level! Congrats!</p>
+	<p>Құттықтаймын сіздің қолыныздан келді!</p>
 </div>
 
 
 
 <div id="loading" style="position: absolute; inset: 0px; background-color: rgb(221, 221, 221); color: rgb(34, 34, 34); text-align: center; display: none;">
-	<h2>Netsim</h2>
-	<p>Loading...</p><p>
+	<h2>Пинг-понг</h2>
+	<p>Күте тұрыныз...</p><p>
 </p></div>
 
 
