@@ -128,27 +128,32 @@ var grpLaunchers;
 var pause, pause_, play, play_, fast, fast_;
 
 function preload() {
-	game.load.image('imac', 'includes/imac.png');
-	game.load.image('iphone-1', 'includes/iphone-1.png');
-	game.load.image('macbook', 'includes/macbook.png');
-	game.load.image('monitor', 'includes/monitor.png');
-	game.load.image('packet', 'includes/circle.png');
-	game.load.image('server', 'includes/server.png');
-	game.load.image('router', 'includes/router.png');
+	    handleRemoteImagesOnJSFiddle();
+	game.load.image('imac', 'imac.png');
+	game.load.image('iphone-1', 'iphone-1.png');
+	game.load.image('macbook', 'macbook.png');
+	game.load.image('monitor', 'monitor.png');
+	game.load.image('packet', 'circle.png');
+	game.load.image('server', 'server.png');
+	game.load.image('router', 'router.png');
 
-	game.load.image('reset', 'includes/ui/reset.png');
-	game.load.image('pause', 'includes/ui/pause.png');
-	game.load.image('pause_', 'includes/ui/pause_grey.png');
-	game.load.image('play', 'includes/ui/play.png');
-	game.load.image('play_', 'includes/ui/play_grey.png');
-	game.load.image('fast', 'includes/ui/fast.png');
-	game.load.image('fast_', 'includes/ui/fast_grey.png');
-	game.load.image('edit', 'includes/ui/tabs.png');
-	game.load.image('launch', 'includes/ui/launch.png');
-	game.load.image('add', 'includes/ui/add.png');
+	game.load.image('reset', 'reset.png');
+	game.load.image('pause', 'pause.png');
+	game.load.image('pause_', 'pause_grey.png');
+	game.load.image('play', 'play.png');
+	game.load.image('play_', 'play_grey.png');
+	game.load.image('fast', 'fast.png');
+	game.load.image('fast_', 'fast_grey.png');
+	game.load.image('edit', 'tabs.png');
+	game.load.image('launch', 'launch.png');
+	game.load.image('add', 'add.png');
 
-	for (var i = 0; i <= 6; i++) game.load.image('meter-'+i, 'includes/ui/meter-'+i+'.png');
+	for (var i = 0; i <= 6; i++) game.load.image('meter-'+i, 'meter-'+i+'.png');
 	//game.load.crossOrigin = 'anonymous';
+}
+function handleRemoteImagesOnJSFiddle() {
+	game.load.baseURL = 'https://oqulyq.herokuapp.com/static/images/';
+	game.load.crossOrigin = 'anonymous';
 }
 
 function create() {
