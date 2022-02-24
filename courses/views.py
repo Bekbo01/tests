@@ -336,3 +336,6 @@ def network(request):
 
 def packet(request):
     return render(request, 'packet.html')
+
+def intro(request):
+    return render(request, 'intro.html')
