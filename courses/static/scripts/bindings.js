@@ -1,7 +1,7 @@
 
 function onDeviceClick() {
 	var ip = this.hasOwnProperty("secret") && this.secret ? "<i>secret</i>" : this.id;
-	$("#subpane").html("<h3>Құрылғы жайлы ақпарат</h3><p><img src=\"{% static 'images/"+(this.image||'imac')+".png' %}\"></p><p>IP адресс: "+ip+"</p>");
+	$("#subpane").html("<h3>Құрылғы жайлы ақпарат</h3><p><img src=\"/static/images/"+(this.image||'imac')+".png\"></p><p>IP адресс: "+ip+"</p>");
 	$("#subpane").show();
 	$("#subpane_close").show();
 	$("#leveldescrip").hide();
