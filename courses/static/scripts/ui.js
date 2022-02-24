@@ -50,16 +50,18 @@ function createPacketEditor(index, packet) {
 		}
 	}
 	str += "</select><br>";
+	
+	str += "<fieldset><legend>"+Желілік қабат+"</legend>";
+	str += жіберуші+":<br><input type=\"text\" id=\""+packetFields[0].layer+"_"+packetFields[0].fields[0]+"\" value=\""+payloadStr(packet, packetFields[0].layer, packetFields[0].fields[0])+"\"><br>";
+	str += қабылдаушы+":<br><input type=\"text\" id=\""+packetFields[0].layer+"_"+packetFields[0].fields[1]+"\" value=\""+payloadStr(packet, packetFields[0].layer, packetFields[0].fields[1])+"\"><br>";
+	str += "</fieldset>";
+	str += "<fieldset><legend>"+Траспорттық қабат+"</legend>";
+	str += протокол+":<br><input type=\"text\" id=\""+packetFields[1].layer+"_"+packetFields[1].fields[0]+"\" value=\""+payloadStr(packet, packetFields[1].layer, packetFields[1].fields[0])+"\"><br>";
+	str += TTL+":<br><input type=\"text\" id=\""+packetFields[1].layer+"_"+packetFields[1].fields[1]+"\" value=\""+payloadStr(packet, packetFields[1].layer, packetFields[1].fields[1])+"\"><br>";
+	str += "</fieldset>";
+	
 
-	for (var i = 0; i < packetFields.length; i++) {
-		str += "<fieldset><legend>"+packetFields[i].layer+"</legend>";
-		for (var j = 0; j < packetFields[i].fields.length; j++) {
-			str += packetFields[i].fields[j]+":<br><input type=\"text\" id=\""+packetFields[i].layer+"_"+packetFields[i].fields[j]+"\" value=\""+payloadStr(packet, packetFields[i].layer, packetFields[i].fields[j])+"\"><br>";
-		}
-		str += "</fieldset>";
-	}
-
-	str += "<p>Repeat: <input type=\"text\" id=\"repeat\" style=\"width:40px;\" value=\""+(packet.hasOwnProperty("repeat") ? packet.repeat : 1)+"\"></p>";
+	str += "<p>Қайталану саны: <input type=\"text\" id=\"repeat\" style=\"width:40px;\" value=\""+(packet.hasOwnProperty("repeat") ? packet.repeat : 1)+"\"></p>";
 
 	$("#editor").html(str);
 	$('#editor').dialog({
