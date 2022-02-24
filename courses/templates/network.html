@@ -107,11 +107,11 @@ var devices = {};
 var playerPackets = [];
 
 var packetFields = [
-	{layer:"Желілік", fields:[
-		"жіберуші", "қабылдаушы"
+	{layer:"network", fields:[
+		"srcip", "dstip"
 	]},
-	{layer:"Транспорттық", fields:[
-		"протоколт", "ttl"
+	{layer:"transport", fields:[
+		"proto", "ttl"
 	]},
 ];
 
