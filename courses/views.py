@@ -330,3 +330,6 @@ def peertopeer(request):
 
 def ipv4(request):
     return render(request, 'ipv4.html')
+
+def network(request):
+    return render(request, 'network.html')
