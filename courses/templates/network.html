@@ -107,15 +107,12 @@ var devices = {};
 var playerPackets = [];
 
 var packetFields = [
-	{layer:"network", fields:[
-		"srcip", "dstip"
+	{layer:"Желілік", fields:[
+		"жіберуші", "қабылдаушы"
 	]},
-	{layer:"transport", fields:[
-		"proto", "ttl"
+	{layer:"Транспорттық", fields:[
+		"протоколт", "ttl"
 	]},
-        {layer:"application", fields:[
-                "type", "key"
-	]}
 ];
 
 var vpWidth = window.innerWidth || document.documentElement.clientWidth || document.getElementsByTagName('body')[0].clientWidth;
