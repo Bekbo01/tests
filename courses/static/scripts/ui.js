@@ -43,7 +43,7 @@ function createLaunchers() {
 }
 
 function createPacketEditor(index, packet) {
-	var str = "Sent from: <select id=\"pktFrom\">";
+	var str = "Пакет жіберуші: <select id=\"pktFrom\">";
 	for (var i = 0; i < level.devices.length; i++) {
 		if (level.devices[i].player) {
 			str += "<option"+(packet.from == level.devices[i].id ? " selected" : "")+">"+level.devices[i].id+"</option>";
@@ -63,11 +63,11 @@ function createPacketEditor(index, packet) {
 
 	$("#editor").html(str);
 	$('#editor').dialog({
-		title: index < 0 ? "Add packet" : "Update packet",
+		title: index < 0 ? "Пакет қосу" : "Пакетті жаңарту",
 		resizable:false,
 		buttons:[
-			{ text: "Remove", click:function() { deletePlayerPacket(index); createLaunchers(); $(this).dialog("close"); }},
-			{ text: index < 0 ? "Add" : "Update", click:function() { updatePlayerPacket(index < 0 ? playerPackets.length : index); createLaunchers(); $(this).dialog("close");}}
+			{ text: "Жою", click:function() { deletePlayerPacket(index); createLaunchers(); $(this).dialog("close"); }},
+			{ text: index < 0 ? "Қосу" : "Жаңарту", click:function() { updatePlayerPacket(index < 0 ? playerPackets.length : index); createLaunchers(); $(this).dialog("close");}}
 		]
 	});
 	$('select').selectmenu();
