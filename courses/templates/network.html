@@ -1,0 +1,404 @@
+<html lang="en" class="js-focus-visible" data-js-focus-visible=""><head> 
+	<meta charset="UTF-8">
+	{% load staticfiles %}
+	<title>Network</title>
+	
+	<script src="{% static 'scripts/jquery-3.2.1.min.js' %}"></script>
+	<script src="{% static 'scripts/jquery-ui.min.js' %}"></script>
+	<script src="{% static 'scripts/phaser.min.js' %}"></script>
+	<script src="{% static 'scripts/ui.js' %}"></script>
+	<script src="{% static 'scripts/bindings.js' %}"></script>
+	<script src="{% static 'scripts/devicescripts.js' %}"></script>
+
+	<link href="{% static 'styles/jquery-ui.min.css' %}" rel="stylesheet">
+	<style type="text/css">
+		* { font-family:Arial, Helvetica, sans-serif; }
+		body { margin: 0; overflow:hidden; }
+	</style>
+<style type="text/css">
+@font-face {
+  font-weight: 400;
+  font-style:  normal;
+  font-family: 'Circular-Loom';
+
+  src: url('https://cdn.loom.com/assets/fonts/circular/CircularXXWeb-Book-cd7d2bcec649b1243839a15d5eb8f0a3.woff2') format('woff2');
+}
+
+@font-face {
+  font-weight: 500;
+  font-style:  normal;
+  font-family: 'Circular-Loom';
+
+  src: url('https://cdn.loom.com/assets/fonts/circular/CircularXXWeb-Medium-d74eac43c78bd5852478998ce63dceb3.woff2') format('woff2');
+}
+
+@font-face {
+  font-weight: 700;
+  font-style:  normal;
+  font-family: 'Circular-Loom';
+
+  src: url('https://cdn.loom.com/assets/fonts/circular/CircularXXWeb-Bold-83b8ceaf77f49c7cffa44107561909e4.woff2') format('woff2');
+}
+
+@font-face {
+  font-weight: 900;
+  font-style:  normal;
+  font-family: 'Circular-Loom';
+
+  src: url('https://cdn.loom.com/assets/fonts/circular/CircularXXWeb-Black-bf067ecb8aa777ceb6df7d72226febca.woff2') format('woff2');
+}</style></head>
+<body>
+
+<script type="text/javascript">
+var DEFAULT_GAMESPEED = 3;
+
+var levelid = 3;
+var level = {
+	devices:[
+		{
+			id:"Alice",
+			ports:1,
+			x:0.25,
+			y:0.5,
+			player:true,
+			bufferWait:10000000
+		},
+		{
+			id:"Google",
+			ports:1,
+			x:0.75,
+			y:0.5,
+			image:"server",
+			script: deviceScripts.ping
+		}
+	],
+	links:[
+		{
+			src:"Alice", srcport:0,
+			dst:"Google", dstport:0
+		}
+	],
+	timeline:[
+		{
+			type:"packet",
+			at:500,
+			from:"Alice",
+			payload:{
+				network:{srcip:"Alice", dstip:"Google"},
+				transport:{proto:"ICMP"}
+			}
+		}
+	],
+	triggers:[
+                {
+			type:"packet",
+			device:"Alice",
+			payload:{
+				network:{srcip:"Google", dstip:"Alice"},
+				transport:{proto:"ICMP"}
+			},
+			times:5
+                }
+        ],
+	nextLevel:4
+}
+;
+var devices = {};
+var playerPackets = [];
+
+var packetFields = [
+	{layer:"network", fields:[
+		"srcip", "dstip"
+	]},
+	{layer:"transport", fields:[
+		"proto", "ttl"
+	]},
+        {layer:"application", fields:[
+                "type", "key"
+	]}
+];
+
+var vpWidth = window.innerWidth || document.documentElement.clientWidth || document.getElementsByTagName('body')[0].clientWidth;
+var vpHeight = window.innerHeight|| document.documentElement.clientHeight|| document.getElementsByTagName('body')[0].clientHeight;
+
+var game = new Phaser.Game(vpWidth, vpHeight, Phaser.AUTO, 'game', { preload: preload, create: create, update: update });
+var grpPackets;
+var grpDevices;
+var grpLaunchers;
+var pause, pause_, play, play_, fast, fast_;
+
+function preload() {
+	game.load.image('imac', 'includes/imac.png');
+	game.load.image('iphone-1', 'includes/iphone-1.png');
+	game.load.image('macbook', 'includes/macbook.png');
+	game.load.image('monitor', 'includes/monitor.png');
+	game.load.image('packet', 'includes/circle.png');
+	game.load.image('server', 'includes/server.png');
+	game.load.image('router', 'includes/router.png');
+
+	game.load.image('reset', 'includes/ui/reset.png');
+	game.load.image('pause', 'includes/ui/pause.png');
+	game.load.image('pause_', 'includes/ui/pause_grey.png');
+	game.load.image('play', 'includes/ui/play.png');
+	game.load.image('play_', 'includes/ui/play_grey.png');
+	game.load.image('fast', 'includes/ui/fast.png');
+	game.load.image('fast_', 'includes/ui/fast_grey.png');
+	game.load.image('edit', 'includes/ui/tabs.png');
+	game.load.image('launch', 'includes/ui/launch.png');
+	game.load.image('add', 'includes/ui/add.png');
+
+	for (var i = 0; i <= 6; i++) game.load.image('meter-'+i, 'includes/ui/meter-'+i+'.png');
+	//game.load.crossOrigin = 'anonymous';
+}
+
+function create() {
+	game.stage.backgroundColor = 0xDDDDDD;
+	grpDevices = game.add.group();
+	grpPackets = game.add.group();
+	grpLaunchers = game.add.group();
+	document.getElementById('pane').style.left = (vpWidth * 0.7) + 'px';
+	document.getElementById('pane').style.width = (vpWidth * 0.3 - 40) + 'px';
+	document.getElementById('pane').style.height = (vpHeight - 40) + 'px';
+
+	pause = game.add.sprite(80, 20, 'pause');
+	play = game.add.sprite(140, 20, 'play');
+	fast = game.add.sprite(200, 20, 'fast');
+
+	game.add.button(20, 20, 'reset', btnReset);
+	pause_ = game.add.button(80, 20, 'pause_', btnPause);
+	play_ = game.add.button(140, 20, 'play_', btnPlay);
+	fast_ = game.add.button(200, 20, 'fast_', btnFast);
+	createLaunchers();
+
+	fast_.visible = false;
+
+	for (var i = 0; i < level.devices.length; i++) {
+		var devSprite = grpDevices.create(0.7 * game.world.width * level.devices[i].x, game.world.height * level.devices[i].y, level.devices[i].image || 'imac');
+		level.devices[i].sprite = devSprite;
+		if (level.devices[i].hasOwnProperty("capacity")) {
+			level.devices[i].capsprite = grpDevices.create(0.7 * game.world.width * level.devices[i].x + 128,   game.world.height * level.devices[i].y, 'meter-0');
+		}
+		devices[level.devices[i].id] = level.devices[i];
+		devices[level.devices[i].id].ports = [];
+		devices[level.devices[i].id].locked = false;
+		devSprite.inputEnabled = true;
+		devSprite.events.onInputDown.add(onDeviceClick, level.devices[i]);
+	}
+
+	var graphics = game.add.graphics(0,0);
+	graphics.lineStyle(1, 0, 0);
+	graphics.lineTo(1,1);
+	graphics.lineStyle(1, 0x000000, 1);
+
+	for (var i = 0; i < level.links.length; i++) {
+		var src = devices[level.links[i].src];
+		var dst = devices[level.links[i].dst];
+		src.ports[ level.links[i].srcport ] = dst.id;
+		dst.ports[ level.links[i].dstport ] = src.id;
+		graphics.moveTo(src.sprite.centerX, src.sprite.centerY);
+		graphics.lineTo(dst.sprite.centerX, dst.sprite.centerY);
+	}
+
+	var meshSprite = game.add.sprite(0, 0, graphics.generateTexture());
+	meshSprite.sendToBack();
+	graphics.destroy();
+
+	if (!level.hasOwnProperty("triggers")) level.triggers = [];
+
+	$("#loading").hide();
+
+	game.input.keyboard.onPressCallback = function(e){ if (e == " ") {
+		if (game.paused) {
+			if (game.time.slowMotion == 1) btnFast();
+			else btnPlay();
+		} else btnPause();
+	}};
+	//loadPlayerPackets();
+	btnReset();
+}
+
+function initEvents() {
+	for (var i = 0; i < level.timeline.length; i++) {
+		game.time.events.add(level.timeline[i].at * 3, playPacket, level.timeline[i]);
+	}
+}
+
+function playPacket() {
+	doPacketAnimation(this.from, getDefaultRecipient(this.from), this.payload);
+}
+
+function getDefaultRecipient(from) {
+	for (var i = 0; i < level.links.length; i++) {
+		if (level.links[i].src == from) return level.links[i].dst;
+		else if (level.links[i].dst == from) return level.links[i].src;
+	}
+	return null;
+}
+
+function getPortRecipient(from, portNum) {
+	for (var i = 0; i < level.links.length; i++) {
+		if (level.links[i].src == from && level.links[i].srcport == portNum) return level.links[i].dst;
+		if (level.links[i].dst == from && level.links[i].dstport == portNum) return level.links[i].src;
+	}
+	return null;
+
+}
+
+// WARNING: this should only be called by the animator
+// devicescripts should not be able to access it
+function getRemotePort(src, dst) {
+	for (var i = 0; i < level.links.length; i++) {
+		if (level.links[i].src == src && level.links[i].dst == dst) return level.links[i].dstport;
+		if (level.links[i].src == dst && level.links[i].dst == src) return level.links[i].srcport;
+	}
+}
+
+function update() {
+	//todo: separate out the meter-X updates from satisfiesTrigger
+	for (var i = 0; i < level.triggers.length; i++) {
+		if (level.triggers[i].type == "flood") {
+			satisfiesTrigger({dst: level.triggers[i].device}, {type:"flood",device:level.triggers[i].device,noup:true});
+		}
+	}
+}
+
+var levelOver = false;
+function donePacket() {
+	this.kill();
+	var youWin = true;
+
+	for (var i = 0; i < level.triggers.length; i++) {
+		if (satisfiesTrigger(this, level.triggers[i])) {
+			if (level.triggers[i].hasOwnProperty("times")) {
+				if (--level.triggers[i].times <= 0) level.triggers[i].completed = true;
+			} else level.triggers[i].completed = true;
+		}
+
+		if (!level.triggers[i].hasOwnProperty("completed")) youWin = false;
+	}
+
+	if (devices[this.dst].hasOwnProperty("script")) {
+		devices[this.dst].script.onPacketReceived(devices[this.dst], this.payload, this.portNum);
+	}
+}
+
+function satisfiesTrigger(pkt, t) {
+	if (pkt.dst != t.device) return false;
+	
+	if (t.type == "packet") {
+		if (!t.hasOwnProperty("payload") && !t.hasOwnProperty("times")) return true;
+		if (!pkt.hasOwnProperty("payload")) return false;
+	
+		var layers = t.hasOwnProperty("payload") ? Object.keys(t.payload) : [];
+		for (var i = 0; i < layers.length; i++) {
+			if (!pkt.payload.hasOwnProperty(layers[i])) return false;
+	
+			var fields = Object.keys(t.payload[ layers[i] ]);
+			for (var j = 0; j < fields.length; j++) {
+				if (!pkt.payload[ layers[i] ].hasOwnProperty(fields[j])) return false;
+				if (pkt.payload[ layers[i] ][ fields[j] ].trim().toLowerCase() != t.payload[ layers[i] ][ fields[j] ].trim().toLowerCase()) return false;
+			}
+		}
+
+		return true;
+	} else if (t.type == "flood") {
+		if (!devices[t.device].hasOwnProperty("floodCounter")) {
+			devices[t.device].floodCounter = 0;
+			devices[t.device].floodLast = 0;
+		}
+
+		var delta = game.time.events.ms - devices[t.device].floodLast;
+		if (t.noup && devices[t.device].floodCounter > 0) {
+			if (delta > 200) {
+				devices[t.device].floodCounter--;
+				devices[t.device].floodLast = game.time.events.ms;
+			}
+		} else if (delta < 120 / devices[t.device].capacity) {
+			devices[t.device].floodCounter++;
+			if (devices[t.device].floodCounter > 30) devices[t.device].floodCounter = 30;
+		} else {
+			devices[t.device].floodCounter -= Math.floor(delta / (120 / devices[t.device].capacity));
+			if (devices[t.device].floodCounter < 0) devices[t.device].floodCounter = 0;
+		}
+
+		if (!t.noup) devices[t.device].floodLast = game.time.events.ms;
+		devices[t.device].capsprite.loadTexture('meter-'+Math.floor( devices[t.device].floodCounter / 5 ));
+
+		return devices[t.device].floodCounter == 30;
+	} else {
+		console.log("unknown trigger type: "+t.type);
+		return false;
+	}
+}
+
+</script>
+
+<div id="game" style="float:left">
+	<canvas width="1920" height="1057" 
+	style="display: block; touch-action: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); width: 1920px; height: 1057px; cursor: inherit;">
+
+	</canvas>
+</div>
+
+<div id="pane" style="position: absolute; padding: 20px; overflow: auto; left: 1344px; width: 536px; height: 1017px;">
+	<h1>Ping</h1>
+
+	<input type="button" value="Level list" onclick="location.href='./'" class="ui-button ui-corner-all ui-widget" role="button">
+
+	<div id="leveldescrip" style="overflow:auto;">
+	
+<p>So far we have seen very basic packets. These packets have shown only the source (who sent the packet) and the
+destination (who received the packet). In this level, we will see a more complex packet that will give the recipient
+information about how to respond.
+
+</p><p>Pause the simulation to view the packet sent from Alice's computer to Google. There is a new header under the
+<strong>transport layer</strong>. The header, <strong>proto</strong> defines the <strong>protocol</strong> that will
+be run on this layer. The protocol listed is <strong>ICMP</strong>, which is used to <strong>ping</strong> computers. When a
+computer receives a packet with an ICMP echo request (ping) they respond by sending back a packet with an ICMP echo
+(pong). Resume the simulation and notice the response packet sent from Google to Alice's computer.
+
+
+</p><h3>Level Objectives</h3>
+
+<ul>
+    <li>To complete this level, you must send 4 more ICMP echo requests from Alice to Google. Proceed as before, by clicking the + to add new packets. Remember to fill in the new <strong>transport layer</strong> header proto header field.</li>
+</ul>
+	</div>
+
+	<input type="button" id="subpane_close" style="display:none" value="Level info" onclick="onSubpaneClose()" class="ui-button ui-corner-all ui-widget" role="button">
+	<div id="subpane" style="display:none"></div>
+</div>
+
+<div id="editor" style="display:none;">
+	Sent from: 
+	<select id="pktFrom">
+		<option>Alice</option>
+		<option>Bob</option>
+		<option>Carol</option>
+	</select><br>
+	<fieldset>
+		<legend>Network Layer</legend>
+		srcip: <input type="text" id="srcip"><br>
+		dstip: <input type="text" id="dstip">
+	</fieldset>
+	<fieldset>
+		<legend>Transport Layer</legend>
+		payload: <input type="text" id="payload"><br>
+		proto: <input type="text" id="other">
+	</fieldset>
+</div>
+
+<div id="winner" style="display:none;">
+	<p>You won the level! Congrats!</p>
+</div>
+
+
+
+<div id="loading" style="position: absolute; inset: 0px; background-color: rgb(221, 221, 221); color: rgb(34, 34, 34); text-align: center; display: none;">
+	<h2>Netsim</h2>
+	<p>Loading...</p><p>
+</p></div>
+
+
+
+</body><loom-container id="lo-engage-ext-container"><loom-shadow classname="resolved"></loom-shadow></loom-container><loom-container id="lo-companion-container"><loom-shadow classname="resolved"></loom-shadow></loom-container></html>
