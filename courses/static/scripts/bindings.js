@@ -1,17 +1,16 @@
 
 function onDeviceClick() {
 	var ip = this.hasOwnProperty("secret") && this.secret ? "<i>secret</i>" : this.id;
-	$("#subpane").html("<h3>Device info</h3><p><img src=\"./includes/"+(this.image||'imac')+".png\"></p><p>IP address: "+ip+"</p>");
+	$("#subpane").html("<h3>Құрылғы жайлы ақпарат</h3><p><img src=\"../static/images/"+(this.image||'imac')+".png\"></p><p>IP адресс: "+ip+"</p>");
 	$("#subpane").show();
 	$("#subpane_close").show();
 	$("#leveldescrip").hide();
 }
 
 function onPacketClick() {
-	var str = "<h3>Packet info</h3>";
+	var str = "<h3>Пакет жайлы ақпарат</h3>";
 	str += onPacketClick_helper("network", this);
 	str += onPacketClick_helper("transport", this);
-	str += onPacketClick_helper("application", this);
 
 	$("#subpane").html(str);
 	$("#subpane").show();
@@ -23,7 +22,10 @@ function onPacketClick_helper(layer, pkt) {
 	if (!pkt.hasOwnProperty(layer)) return "";
 	
 	var keys = Object.keys(pkt[layer]);
-	var str = "<h4>"+layer+" layer</h4><table>";
+	if (layer == "network") {
+		var str = "<h4>Желілік қабат</h4><table>";}
+	if (layer == "transport") {
+		var str = "<h4>Транспорттық қабат</h4><table>";}
 	for (var i = 0; i < keys.length; i++) str += "<tr><td>"+keys[i]+":</td><td>"+pkt[layer][keys[i]]+"</td></tr>";
 	return str+"</table>";
 }
