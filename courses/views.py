@@ -333,3 +333,6 @@ def ipv4(request):
 
 def network(request):
     return render(request, 'network.html')
+
+def packet(request):
+    return render(request, 'packet.html')
