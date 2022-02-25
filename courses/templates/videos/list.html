@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block title %}
-{% trans 'Videos' %}
+{% trans 'Видеолар' %}
 {% endblock %}
 
 {% block content %}
     <div id="tsr" class="container mx-auto lg:flex">
       <div class="sm:block lg:hidden mx-4 py-6">
             <div class="border-b">
-                <h2 class="mt-2 font-hairline text-sm text-gray-700">{% trans 'Search for a video' %}</h2>
-                <p class="text-gray-700 uppercase text-sm mb-6">{% if q %}<small>{% trans 'Results for' %} : {{ q }}</small>{% endif %}</p>
+                <h2 class="mt-2 font-hairline text-sm text-gray-700">{% trans 'Видео іздеу' %}</h2>
+                <p class="text-gray-700 uppercase text-sm mb-6">{% if q %}<small>{% trans 'Нәтиже' %} : {{ q }}</small>{% endif %}</p>
 
                 <form method="get" novalidate>
                   <select name="results" id="results">
@@ -17,13 +17,13 @@
                       <option value="{{ max_length }}">{{ max_length }}</option>
                       {% endfor %}
                   </select>
-                  {% trans 'number of results' %}
+                  {% trans 'табылым саны' %}
                   {% for subject in subjects %}
                   <div class="input-group">
                       <input type="radio" checked="checked" name="q" id="q" value="{{ subject }}" /> {{ subject }}
                   </div>
                   {% endfor %}
-                  <button class="bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2 border rounded-full mb-4" type="submit">{% trans 'Search' %}</button>
+                  <button class="bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2 border rounded-full mb-4" type="submit">{% trans 'Іздеу' %}</button>
                 </form>
             </div>
         </div>
@@ -51,11 +51,11 @@
                             </p>
                             <p class="inline block p-1 text-gray-700 bg-gray-300 font-hairline text-2xs">
                                 {% if item.id.kind == 'youtube#video' %}
-                                <span class="badge">{% trans 'video' %}</span>
+                                <span class="badge">{% trans 'видео' %}</span>
                                 {% elif item.id.kind == 'youtube#channel' %}
-                                <span class="badge">{% trans 'channel' %}</span>
+                                <span class="badge">{% trans 'канал' %}</span>
                                 {% elif item.id.kind == 'youtube#playlist' %}
-                                <span class="badge">{% trans 'playlist' %}</span>
+                                <span class="badge">{% trans 'плейлист' %}</span>
                                 {% endif %}
                             </p>
                         </div>
@@ -76,20 +76,20 @@
                       <option value="{{ max_length }}">{{ max_length }}</option>
                       {% endfor %}
                   </select>
-                  {% trans 'number of results' %}
+                  {% trans 'табылым саны' %}
                   {% for subject in subjects %}
                   <div class="input-group">
                       <input type="radio" checked="checked" name="q" id="q" value="{{ subject }}" /> {{ subject }}
                   </div>
                   {% endfor %}
-                  <button class="bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2 border rounded-full mb-4" type="submit">{% trans 'Search' %}</button>
+                  <button class="bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2 border rounded-full mb-4" type="submit">{% trans 'Іздеу' %}</button>
                 </form>
             </div>
         </div>
     </div>
     <div id="lecteur-video" class="is-hidden">
       <div class="absolute top-0 left-0 right-0 z-10 bg-white">
-        <p><a href="#tsr" id="closeVideo">{% trans 'Close Video' %}</a></p>
+        <p><a href="#tsr" id="closeVideo">{% trans 'Вмдеоны жабу' %}</a></p>
         <div class="relative aspect-16x9">
             <!-- https://www.youtube.com/watch?v={{ item.id.videoId }} -->
               <iframe id="video-iframe" class="absolute pin h-screen w-screen" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
