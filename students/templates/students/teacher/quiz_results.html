@@ -21,14 +21,14 @@
         <div class="card">
             <div class="card-header">
               <strong>{% trans 'Жауап берілген тест' %}</strong>
-              <span class="badge badge-pill badge-primary float-right">{% trans 'Average score' %}{{ quiz_score.average_score|default_if_none:0.0}} %</span>
+              <span class="badge badge-pill badge-primary float-right">{% trans 'Орташа балл' %}{{ quiz_score.average_score|default_if_none:0.0}} %</span>
             </div>
             <table class="table mb-0">
                 <thead>
                     <tr>
-                        <th>{% trans 'Student' %}</th>
-                        <th>{% trans 'Date' %}</th>
-                        <th>{% trans 'Score' %}</th>
+                        <th>{% trans 'Студент' %}</th>
+                        <th>{% trans 'Уақыты' %}</th>
+                        <th>{% trans 'Бағасы' %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -43,7 +43,7 @@
             </table>
 
             <div class="card-footer text-muted">
-              {% trans 'Total respondents:' %} <strong>{{ total_taken_quizzes }}</strong>
+              {% trans 'Барлық тест тапсырушылар саны:' %} <strong>{{ total_taken_quizzes }}</strong>
             </div>
         </div>
     </div>
