@@ -1,9 +1,9 @@
 {% extends "base.html" %}
    {% block title %}
      {% if object %}
-       Edit course "{{ object.title }}"
+       Курсты өзгерту "{{ object.title }}"
      {% else %}
-       Create a new course
+       Жаңа курс енгізу
      {% endif %}
    {% endblock %}
 
@@ -11,18 +11,18 @@
    <div class="container-fluid">
        <h1>
            {% if object %}
-             Edit course "{{ object.title }}"
+             Курсты өзгерту  "{{ object.title }}"
            {% else %}
-             Create a new course
+             Жаңа курс қосу
            {% endif %}
          </h1>
 
          <div>
-           <h2>Course info</h2>
+           <h2>Курс жайлы ақпарат</h2>
            <form action="." method="post">
                {{ form.as_p }}
                {% csrf_token %}
-             <p><input type="submit" class="bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2  border rounded-full" value="Save course"></p>
+             <p><input type="submit" class="bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2  border rounded-full" value="Курсты қосу"></p>
            </form>
          </div>
      </div>
