@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-   {% block title %}Delete course{% endblock %}
+   {% block title %}Курсты жою{% endblock %}
    {% block content %}
    <div class="container-fluid">
-         <h1>Delete course "{{ object.title }}"</h1>
+         <h1>Курсты жою "{{ object.title }}"</h1>
          <div>
            <form action="" method="post">
              {% csrf_token %}
-             <p>Are you sure you want to delete "{{ object }}"?</p>
-             <input type="submit" class="bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2  border rounded-full" value="Confirm">
+             <p>"{{ object }}" курсын жоюға келісім бересіз бе?</p>
+             <input type="submit" class="bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2  border rounded-full" value="Келісемін">
            </form>
          </div>
      </div>
