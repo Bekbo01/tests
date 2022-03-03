@@ -80,10 +80,11 @@ class Text(ItemBase):
     content = models.TextField()
 
 class File(ItemBase):
-    file = models.FileField(upload_to='files')
+    #file = models.FileField(upload_to='files')
+    file = models.URLField(default='')
 
 class Image(ItemBase):
-    file = models.FileField(upload_to='images')
+    #file = models.FileField(upload_to='images')
     image_url = models.URLField(default='')
 
 class Video(ItemBase):
