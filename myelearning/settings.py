@@ -216,8 +216,8 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ORIGIN_WHITELIST = (
     'https://myelearning.herokuapp.com',
-    'oqulyq.herokuapp.com', 
-    'okulyk.herokuapp.com',
+    'https://oqulyq.herokuapp.com', 
+    'https://okulyk.herokuapp.com',
     'http://localhost:8080',
     'http://localhost:8100',
     'http://localhost:8000',
