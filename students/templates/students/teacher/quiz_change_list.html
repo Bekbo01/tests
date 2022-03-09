@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block title %}
-{% trans 'Менің тестерім' %}
+{% trans 'My Quizzes' %}
 {% endblock %}
 
 {% block content %}
@@ -9,21 +9,21 @@
     <div class="quizzes">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-              <li class="breadcrumb-item" aria-current="page">{% trans 'Менің тестерім' %}</li>
+              <li class="breadcrumb-item" aria-current="page">{% trans 'My Quizzes' %}</li>
             </ol>
         </nav>
 
-        <h2>{% trans 'Менің тестерім' %}</h2>
-        <a href="{% url 'teacher_add_quiz' %}" class="btn btn-primary mb-3" role="button">{% trans 'Тест қосу' %}</a>
+        <h2>{% trans 'My Quizzes' %}</h2>
+        <a href="{% url 'teacher_add_quiz' %}" class="btn btn-primary mb-3" role="button">{% trans 'Add Quiz' %}</a>
 
         <div class="quiz">
             <table class="table mb-0">
                 <thead>
                     <tr>
-                        <th>{% trans 'Тест' %}</th>
-                        <th>{% trans 'Тег' %}</th>
-                        <th>{% trans 'Сұрақ' %}</th>
-                        <th>{% trans 'Тапсырғандар' %}</th>
+                        <th>{% trans 'Quiz' %}</th>
+                        <th>{% trans 'Tag' %}</th>
+                        <th>{% trans 'Question' %}</th>
+                        <th>{% trans 'Taken' %}</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -35,12 +35,12 @@
                             <td>{{ quiz.questions_count }}</td>
                             <td>{{ quiz.taken_count }}</td>
                             <td class="text-right">
-                              <a href="{% url 'teacher_quiz_results' quiz.pk %}" class="bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2  border rounded-full">{% trans 'Нәтижесін көру' %}</a>
+                              <a href="{% url 'teacher_quiz_results' quiz.pk %}" class="bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2  border rounded-full">{% trans 'View results' %}</a>
                             </td>
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="5">{% trans 'Әлі тест енгізілмеген.' %}</td>
+                            <td colspan="5">{% trans 'No quiz created right now.' %}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
